@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мои бронирования</title>
+</head>
+<body>
+    <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1>Мои бронирования</h1>
+        
+        {% if bookings %}
+            {% for booking in bookings %}
+            <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px;">
+                <h3>{{ booking.yoga_class.title }}</h3>
+                <p>📅 {{ booking.yoga_class.date|date:"d.m.Y" }}</p>
+                <p>⏰ {{ booking.yoga_class.start_time|time:"H:i" }} - {{ booking.yoga_class.end_time|time:"H:i" }}</p>
+                <p>👨‍🏫 {{ booking.yoga_class.instructor }}</p>
+                
+                <a href="{% url 'yoga:cancel' booking.id %}" style="color: red;">Отменить</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас нет бронирований</p>
+        {% endif %}
+        
+        <br>
+        <a href="{% url 'yoga:booking' %}" style="color: #9b59b6;">← К занятиям</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создать флеш-карточку</title>
+</head>
+<body>
+    <div style="max-width: 500px; margin: 0 auto; padding: 20px;">
+        <h1>Создать карточку</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+        <br>
+        <a href="{% url 'flashcards:list' %}">← Назад к списку</a>
+    </div>
+</body>
+</html>

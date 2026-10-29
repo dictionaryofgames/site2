@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f5f5f5;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 10px;
+        }
+        
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            margin: 0 0 15px;
+            min-height: 40px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 0 0 15px;
+        }
+        
+        .btn-buy {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-buy:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-buy.added {
+            background-color: #2ecc71;
+        }
+        
+        .no-products {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .cart-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cart-count {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 14px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    
+    <a href="{% url 'shop:cart' %}" class="cart-link">
+        🛒 Корзина
+        <span class="cart-count" id="cart-count">{{ cart_count|default:0 }}</span>
+    </a>
+    
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+                <div class="product-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+                    <span style="font-size: 48px;">📦</span>
+                </div>
+            {% endif %}
+            
+            <div class="product-info">
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+                <div class="product-price">{{ product.price }} ₽</div>
+                <form method="post" action="{% url 'shop:add_to_cart' product.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-buy">В корзину</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-products">
+            <p>Товаров пока нет</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="toast" id="toast">Товар добавлен в корзину!</div>
+    
+    <br>
+    <a href="{% url 'home' %}">← На главную</a>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('.add-to-cart-form');
+            const toast = document.getElementById('toast');
+            const cartCount = document.getElementById('cart-count');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(form);
+                    const action = form.action;
+                    const button = form.querySelector('.btn-buy');
+                    
+                    fetch(action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            cartCount.textContent = data.item_count;
+                            button.textContent = '✓ Добавлено';
+                            button.classList.add('added');
+                            
+                            setTimeout(() => {
+                                button.textContent = 'В корзину';
+                                button.classList.remove('added');
+                            }, 2000);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мои флеш-карточки</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .flashcard-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-success { background-color: #2ecc71; color: white; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Мои флеш-карточки</h1>
+        <a href="{% url 'flashcards:create' %}" class="btn btn-primary">+ Создать карточку</a>
+        
+        {% if flashcards %}
+            {% for fc in flashcards %}
+            <div class="flashcard-item">
+                <div>
+                    <h3>{{ fc.title }}</h3>
+                    <p>{{ fc.items.count }} элементов</p>
+                </div>
+                <div>
+                    <a href="{% url 'flashcards:detail' fc.pk %}" class="btn btn-primary">Открыть</a>
+                    <a href="{% url 'flashcards:study' fc.pk %}" class="btn btn-success">Изучать</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас пока нет флеш-карточек</p>
+        {% endif %}
+        
+        <br>
+        <a href="{% url 'home' %}">← На главную</a>
+    </div>
+</body>
+</html>

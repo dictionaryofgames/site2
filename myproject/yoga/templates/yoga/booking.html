@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Бронирование: {{ yoga_class.title }}</title>
+    <style>
+      .error {
+        background-color: #ffebee;
+        color: red;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="max-width: 500px; margin: 0 auto; padding: 20px">
+      <h1>Бронирование</h1>
+      <h2>{{ yoga_class.title }}</h2>
+      <p>{{ yoga_class.description }}</p>
+      <p>👨‍🏫 Преподаватель: {{ yoga_class.instructor }}</p>
+      <p>📅 Дата: {{ yoga_class.date|date:"d.m.Y" }}</p>
+      <p>⏰ Время: {{ yoga_class.start_time|time:"H:i" }} - {{ yoga_class.end_time|time:"H:i" }}</p>
+
+      <form method="post">
+        {% csrf_token %} {{ form.yoga_class }}
+        <button type="submit" class="btn btn-success">
+          Подтвердить бронирование
+        </button>
+      </form>
+        {% if message %}
+            <div style="background-color: #ffebee; padding: 10px; border-radius: 4px; margin-top: 15px; color: red;">
+                {{ message }}
+            </div>
+        {% endif %}      
+
+      {% if form.errors %}
+      <div class="error">
+        <strong>Ошибка:</strong>
+        {{ form.errors }}
+      </div>
+      {% endif %}
+
+      <br />
+      <a href="{% url 'yoga:booking' %}">← Назад к занятиям</a>
+    </div>
+  </body>
+</html>

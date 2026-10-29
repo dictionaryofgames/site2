@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Занятия йоги</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .class-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .class-card h3 { margin: 0 0 10px; }
+        .class-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            color: #666;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background-color: #9b59b6; color: white; }
+        .btn-success { background-color: #2ecc71; color: white; }
+        .spots { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Занятия йоги</h1>
+        
+        {% if classes %}
+            {% for cls in classes %}
+            <div class="class-card">
+                <h3>{{ cls.title }}</h3>
+                <p>{{ cls.description }}</p>
+                
+                <div class="class-info">
+                    <span>📅 {{ cls.date|date:"d.m.Y" }}</span>
+                    <span>⏰ {{ cls.start_time|time:"H:i" }} - {{ cls.end_time|time:"H:i" }}</span>
+                    <span>👨‍🏫 {{ cls.instructor }}</span>
+                </div>
+                
+                <p>Свободных мест: <span class="spots">{{ cls.available_spots }}/{{ cls.max_participants }}</span></p>
+                
+                <a href="{% url 'yoga:book' cls.id %}" class="btn btn-success">Забронировать</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Занятий пока нет</p>
+        {% endif %}
+        
+        <br>
+        <a href="{% url 'home' %}" class="btn btn-primary">← На главную</a>
+    </div>
+</body>
+</html>
