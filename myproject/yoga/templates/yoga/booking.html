@@ -20,6 +20,7 @@
       <p>👨‍🏫 Преподаватель: {{ yoga_class.instructor }}</p>
       <p>📅 Дата: {{ yoga_class.date|date:"d.m.Y" }}</p>
       <p>⏰ Время: {{ yoga_class.start_time|time:"H:i" }} - {{ yoga_class.end_time|time:"H:i" }}</p>
+      <p>👥 Свободных мест: <strong>{{ yoga_class.available_spots }}/{{ yoga_class.max_participants }}</strong></p>
 
       <form method="post">
         {% csrf_token %} {{ form.yoga_class }}

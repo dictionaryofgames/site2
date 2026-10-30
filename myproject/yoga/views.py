@@ -6,6 +6,8 @@ from .forms import BookingForm
 
 
 def classes_list(request):
+    Booking.clean_expired_bookings()
+    YogaClass.clean_expired_classes()
     classes = YogaClass.objects.all()
     return render(request, "yoga/classes.html", {"classes": classes})
 
@@ -13,6 +15,7 @@ def classes_list(request):
 @login_required
 def booking_create(request, class_id):
     yoga_class = get_object_or_404(YogaClass, id=class_id)
+    Booking.clean_expired_bookings()
     
     if not yoga_class.is_available:
         return render(request, 'yoga/error.html', {
@@ -34,12 +37,14 @@ def booking_create(request, class_id):
 
 @login_required
 def my_bookings(request):
+    Booking.clean_expired_bookings()
     bookings = Booking.objects.filter(user=request.user).select_related("yoga_class")
     return render(request, "yoga/my_bookings.html", {"bookings": bookings})
 
 
 @login_required
 def booking_cancel(request, booking_id):
+    Booking.clean_expired_bookings()
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     booking.delete()
     return redirect("yoga:my_bookings")

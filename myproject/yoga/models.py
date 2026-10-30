@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class YogaClass(models.Model):
@@ -28,6 +29,19 @@ class YogaClass(models.Model):
     def is_available(self):
         return self.available_spots > 0
 
+    @staticmethod
+    def clean_expired_classes():
+        now = timezone.localtime()
+        now_time = now.time()
+        expired = YogaClass.objects.filter(
+            models.Q(date__lt=now.date()) |
+            models.Q(date=now.date(), end_time__lte=now_time)
+        )
+        expired_count = expired.count()
+        if expired_count > 0:
+            expired.delete()
+        return expired_count
+
 
 class Booking(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -41,3 +55,29 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.yoga_class.title}"
+
+    @property
+    def class_has_passed(self):
+        now = timezone.localtime()
+        class_datetime = timezone.make_aware(
+            timezone.datetime.combine(self.yoga_class.date, self.yoga_class.end_time)
+        )
+        return now > class_datetime
+
+    @staticmethod
+    def clean_expired_bookings():
+        now = timezone.localtime()
+        now_datetime = timezone.make_aware(
+            timezone.datetime.combine(now.date(), now.time())
+        )
+        expired = Booking.objects.select_related('yoga_class').filter(
+            yoga_class__date__lt=now.date()
+        )
+        expired |= Booking.objects.select_related('yoga_class').filter(
+            yoga_class__date=now.date(),
+            yoga_class__end_time__lte=now.time()
+        )
+        expired_count = expired.count()
+        if expired_count > 0:
+            expired.delete()
+        return expired_count
